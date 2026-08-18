@@ -14,11 +14,84 @@
     #loading .spinner{width:44px;height:44px;border:4px solid #DDE1EA;border-top-color:#3B5FCC;border-radius:50%;animation:spin .8s linear infinite}
     #loading p{font-size:14px;color:#6B7280;font-weight:500}
     @keyframes spin{to{transform:rotate(360deg)}}
+    /* ===== PC 전용 안내 ===== */
+    #pcOnly{position:fixed;inset:0;z-index:99999;display:none;background:#F7F8FA;padding:28px 22px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+    #pcOnly.on{display:flex;align-items:center;justify-content:center}
+    #pcOnly .box{width:100%;max-width:420px;background:#fff;border:1px solid #DDE1EA;border-radius:16px;box-shadow:0 10px 40px rgba(43,58,107,.14);overflow:hidden}
+    #pcOnly .top{background:linear-gradient(135deg,#1A4080,#2B3A6B);color:#fff;padding:26px 22px;text-align:center}
+    #pcOnly .top .ico{font-size:42px;line-height:1;margin-bottom:10px}
+    #pcOnly .top h1{font-size:19px;font-weight:800;letter-spacing:-.5px;margin-bottom:6px}
+    #pcOnly .top p{font-size:12.5px;opacity:.75;line-height:1.6}
+    #pcOnly .body{padding:22px 20px 20px}
+    #pcOnly .body .lead{font-size:14px;font-weight:700;color:#1A1D23;line-height:1.7;margin-bottom:12px}
+    #pcOnly .body .desc{font-size:13px;color:#6B7280;line-height:1.85;margin-bottom:16px}
+    #pcOnly ul{list-style:none;margin:0 0 16px;padding:14px 16px;background:#EEF1FB;border:1px solid #3B5FCC33;border-radius:10px}
+    #pcOnly ul li{font-size:12.5px;color:#2B3A6B;line-height:1.9;display:flex;gap:8px;align-items:flex-start}
+    #pcOnly ul li span{flex-shrink:0}
+    #pcOnly .note{font-size:11.5px;color:#C47B0A;background:#FDF5E6;border:1px solid #C47B0A44;border-radius:8px;padding:10px 12px;line-height:1.7;margin-bottom:16px}
+    #pcOnly .go{display:block;width:100%;border:none;border-radius:9px;padding:12px;background:transparent;color:#9CA3AF;font-size:12px;font-weight:600;cursor:pointer;text-decoration:underline;font-family:inherit}
+    #pcOnly .made{text-align:center;font-size:11px;color:#C8CDD8;margin-top:14px}
+    body.pc-lock{overflow:hidden}
   </style>
 </head>
 <body>
   <div id="loading"><div class="spinner"></div><p>보결 배정 시스템을 불러오는 중...</p></div>
   <div id="root"></div>
+  <div id="pcOnly">
+    <div class="box">
+      <div class="top">
+        <div class="ico">🖥️</div>
+        <h1>PC 전용 프로그램입니다</h1>
+        <p>보결 배정 시스템</p>
+      </div>
+      <div class="body">
+        <div class="lead">스마트폰·태블릿에서는<br/>이용하실 수 없습니다.</div>
+        <div class="desc">이 프로그램은 시간표 입력과 보결 배정 화면이 넓어 <strong>PC(데스크톱·노트북)</strong> 화면에 맞춰 만들어졌습니다.</div>
+        <ul>
+          <li><span>🖥️</span><span>학교 업무용 PC에서 접속해 주세요.</span></li>
+          <li><span>🌐</span><span>크롬 · 엣지 브라우저를 권장합니다.</span></li>
+          <li><span>📐</span><span>브라우저 창을 넓게 열어 주세요(가로 900px 이상).</span></li>
+        </ul>
+        <div class="note">⚠️ 저장된 자료는 접속한 기기의 브라우저에 보관됩니다. 다른 기기에서 이어서 작업하려면 엑셀 파일로 저장한 뒤 불러오세요.</div>
+        <button type="button" class="go" id="pcOnlyGo">그래도 이 기기에서 계속 보기</button>
+      </div>
+    </div>
+  </div>
+  <script>
+  (function(){
+    var el=document.getElementById('pcOnly');
+    var forced=false;
+    try{forced=sessionStorage.getItem('bogyeol_force_mobile')==='1'}catch(e){}
+    function isSmallDevice(){
+      var ua=navigator.userAgent||'';
+      var mobileUA=/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|Silk|Kindle|PlayBook|Tablet/i.test(ua);
+      var iPadOS=(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+      var w=window.innerWidth||document.documentElement.clientWidth||screen.width||9999;
+      var narrow=w<900;
+      return mobileUA||iPadOS||narrow;
+    }
+    function apply(){
+      if(forced){el.classList.remove('on');document.body.classList.remove('pc-lock');return;}
+      if(isSmallDevice()){
+        el.classList.add('on');
+        document.body.classList.add('pc-lock');
+        var l=document.getElementById('loading');
+        if(l)l.style.display='none';
+      }else{
+        el.classList.remove('on');
+        document.body.classList.remove('pc-lock');
+      }
+    }
+    document.getElementById('pcOnlyGo').addEventListener('click',function(){
+      forced=true;
+      try{sessionStorage.setItem('bogyeol_force_mobile','1')}catch(e){}
+      apply();
+    });
+    apply();
+    window.addEventListener('resize',apply);
+    window.addEventListener('orientationchange',function(){setTimeout(apply,150)});
+  })();
+  </script>
   <script>/**
  * @license React
  * react.production.min.js
